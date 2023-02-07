@@ -1,5 +1,13 @@
 ## 0.0.0 (2023-02-07)
 
+* docs: Add CHANGELOG, CONTRIBUTORS, CONTRIBUTING.md and new directories like src/classes and src/func ([747eb32](https://github.com/weblintreal/form-validator/commit/747eb32))
+* docs(README): Added README included the initial text ([ab8597f](https://github.com/weblintreal/form-validator/commit/ab8597f))
+* Initial commit ([4e0b87d](https://github.com/weblintreal/form-validator/commit/4e0b87d))
+
+
+
+## 0.0.0 (2023-02-07)
+
 * docs(README): Added README included the initial text ([ab8597f](https://github.com/weblintreal/form-validator/commit/ab8597f))
 * Initial commit ([4e0b87d](https://github.com/weblintreal/form-validator/commit/4e0b87d))
 
