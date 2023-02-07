@@ -1,0 +1,30 @@
+{
+  "name": "form-validator",
+  "version": "0.0.0",
+  "description": "form validation library for php (supports both OOP and Procedural approaches)",
+  "main": "index.js",
+  "scripts": {
+    "changelog-php": "conventional-changelog -p conventional-changelog-php -i CHANGELOG.md -s",
+    "changelog": "conventional-changelog -p angular -i CHANGELOG.md -s",
+    "release": "semantic-release" 
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/weblintreal/form-validator.git"
+  },
+  "keywords": [
+    "form-validator",
+    "weblintreal",
+    "php"
+  ],
+  "author": "",
+  "license": "MIT",
+  "bugs": {
+    "url": "https://github.com/weblintreal/form-validator/issues"
+  },
+  "homepage": "https://github.com/weblintreal/form-validator#readme",
+  "devDependencies": {
+    "conventional-changelog": "^3.1.25",
+    "semantic-release": "^20.1.0"
+  }
+}
