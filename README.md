@@ -11,7 +11,7 @@ This is a form validation package for PHP. It supports both OOP and procedural a
 You can install the package via composer:
 
 ``` bash
-composer require your-username/form-validation
+composer require weblintreal/form-validation
 ```
 
 ## Usage
@@ -32,7 +32,7 @@ You can use the package in your PHP projects like this:
 
 ## Changelog
 
-Please see [![CHANGELOG](./CHANGELOG.md)] for more information what has changed recently.
+Please see [CHANGELOG.md](CHANGELOG.md) for more information what has changed recently.
 
 ## Running Tests
 
@@ -56,9 +56,9 @@ If you discover any security related issues, please email mdali-devops@gmail.com
 
 ## Credits
 
-- [Author](https://www.github.com/octokatherine)
-- [All Contributors](https://www.github.com/octokatherine)
+- [Author](https://www.github.com/weblintreal)
+- [CONTRIBUTORS.md](CONTRIBUTORS.md)
 
 ## License
 
-The MIT License (MIT). Please see [![License](./LICENSE.md)] File for more information.
+The MIT License (MIT). Please see [CHANGELOG.md](LICENSE) File for more information.
