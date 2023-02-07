@@ -61,4 +61,4 @@ If you discover any security related issues, please email mdali-devops@gmail.com
 
 ## License
 
-The MIT License (MIT). Please see [MIT](LICENSE) File for more information.
+The MIT License (MIT). Please see [LICENSE](LICENSE) File for more information.
