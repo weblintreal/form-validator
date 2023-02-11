@@ -17,7 +17,7 @@ class ValidateRequiredTest extends TestCase
         $value = '';
         $rules = ['required'];
         $messages = [
-            'Test Field' => 'Test Field is required.',
+            'required' => ':attribute is required.',
         ];
 
         $errors = validateRequired($fieldName, $value, $rules, $messages);

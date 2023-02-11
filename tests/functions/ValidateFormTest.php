@@ -8,7 +8,6 @@ require_once __DIR__ . '/../../vendor/autoload.php';
 
 use PHPUnit\Framework\TestCase;
 use function Weblintreal\FormValidator\Functions\validateForm;
-use function Weblintreal\FormValidator\Functions\validateRequired;
 
 class ValidateFormTest extends TestCase
 {
@@ -50,9 +49,7 @@ class ValidateFormTest extends TestCase
         ];
 
         $messages = [
-            'username' => 'username is required.',
-            'email' => 'email is required.',
-            'password' => 'password is required.'
+            'required' => ':attribute is required.'
         ];
 
         $errors = validateForm($data, $rules, $messages);
