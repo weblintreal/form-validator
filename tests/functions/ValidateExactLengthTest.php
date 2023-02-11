@@ -17,12 +17,12 @@ class ValidateExactLengthTest extends TestCase
         $value = 'abcde';
         $rules = ['exactLength:4'];
         $messages = [
-            'exactLength' => ':attribute must have exactly :length characters.',
+            'exactLength' => ':attribute must be exactly :exactLength characters long.',
         ];
 
         $errors = validateExactLength($fieldName, $value, $rules, $messages);
 
-        $this->assertEquals(['Test Field' => 'Test Field must have exactly 4 characters.'], $errors);
+        $this->assertEquals(['Test Field' => 'Test Field must be exactly 4 characters long.'], $errors);
     }
 }
 
