@@ -1,0 +1,23 @@
+{
+    "name": "mdali-devops/form-validator",
+    "description": "This is a form validation package for PHP. It supports both OOP and procedural approaches.",
+    "type": "library",
+    "require-dev": {
+        "phpunit/phpunit": "^10.0"
+    },
+    "license": "MIT",
+    "autoload": {
+        "psr-4": {
+            "MdaliDevops\\FormValidator\\": "src/"
+        },
+        "files": ["src/functions/form-validator.php"]
+    },
+    "authors": [
+        {
+            "name": "weblintreal",
+            "email": "mdali.devops@gmail.com"
+        }
+    ],
+    "minimum-stability": "stable",
+    "require": {}
+}
