@@ -139,10 +139,58 @@ function validateExactLength(string $fieldName, $value, array $rules, array $mes
     $errors = [];
     if (preg_match('/exactLength:(\d+)/', implode(':', $rules), $matches)) {
         $exactLength = (int) $matches[1];
-        if (strlen($value) == $exactLength) {
+        if (strlen($value) != $exactLength) {
             $msg = isset($messages['exactLength']) ? $messages['exactLength'] : $fieldName . " must be exactly $exactLength characters long.";
             $msg = str_replace(':attribute', $fieldName, $msg);
             $msg = str_replace(':exactLength', $exactLength, $msg);
+            $errors[$fieldName] = $msg;
+        }
+    }
+    return $errors;
+}
+
+
+/**
+ * Validate URL.
+ * 
+ * @param string $fieldName The name of the field to validate.
+ * @param mixed $value The value of the field to validate.
+ * @param array $rules The validation rules to apply.
+ * @param array $messages The custom error messages for each rule.
+ * @return array An array of error messages.
+ */
+function validateUrl(string $fieldName, $value, array $rules, array $messages): array
+{
+    $errors = [];
+
+    if (in_array('url', $rules) && !filter_var($value, FILTER_VALIDATE_URL)) {
+        $msg = isset($messages['url']) ? $messages['url'] : $fieldName . " must be a valid URL.";
+        $msg = str_replace(':attribute', $fieldName, $msg);
+        $errors[$fieldName] = $msg;
+    }
+
+    return $errors;
+}
+
+
+/**
+ * Validate regular expression pattern for a field.
+ *
+ * @param string $fieldName The name of the field to validate.
+ * @param mixed $value The value of the field to validate.
+ * @param array $rules The validation rules to apply.
+ * @param array $messages The custom error messages for each rule.
+ * @return array An array of error messages.
+ */
+function validateRegex(string $fieldName, $value, array $rules, array $messages): array
+{
+    $errors = [];
+    if (preg_match('/regex:\/(.*)\//', implode(':', $rules), $matches)) {
+        $regex = $matches[1];
+        if (!preg_match($regex, $value)) {
+            $msg = isset($messages['regex']) ? $messages['regex'] : $fieldName . " format is invalid.";
+            $msg = str_replace(':attribute', $fieldName, $msg);
+            $msg = str_replace(':regex', $regex, $msg);
             $errors[$fieldName] = $msg;
         }
     }
