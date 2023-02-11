@@ -1,10 +1,10 @@
 # PHP Form Validation Package
 
-[![Latest Version on Packagist][ico-version]][link-packagist]
+[![form-validator]][https://packagist.org/packages/mdali-devops/form-validator]
 
 [![MIT License](https://img.shields.io/badge/License-MIT-green.svg)](https://choosealicense.com/licenses/mit/)
 
-This is a form validation package for PHP. It supports both OOP and procedural approaches.It is still in development and the first release is yet to be released.
+This is a form validation package for PHP. Right now it only supports only procedural approach.It is still in continuous development process and the first release is just released.
 
 ## Installation
 

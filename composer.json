@@ -1,5 +1,5 @@
 {
-    "name": "mdali-devops/form-validator",
+    "name": "weblintreal/form-validator",
     "description": "This is a form validation package for PHP. It supports both OOP and procedural approaches.",
     "type": "library",
     "require-dev": {
@@ -14,8 +14,7 @@
     },
     "authors": [
         {
-            "name": "weblintreal",
-            "email": "mdali.devops@gmail.com"
+            "name": "weblintreal"
         }
     ],
     "minimum-stability": "stable",
