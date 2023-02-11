@@ -49,7 +49,102 @@ function validateRequired(string $fieldName, $value, array $rules, array $messag
 {
     $errors = [];
     if (in_array('required', $rules) && empty($value)) {
-        $errors[$fieldName] = isset($messages['required']) ? $messages['required'] : $fieldName . " is required.";
+        $msg = isset($messages['required']) ? $messages['required'] : $fieldName . " is required.";
+        $msg = str_replace(':attribute', $fieldName, $msg);
+        $errors[$fieldName] = $msg;
+    }
+    return $errors;
+}
+
+
+/**
+ * Validate email format.
+ *
+ * @param string $fieldName The name of the field to validate.
+ * @param mixed $value The value of the field to validate.
+ * @param array $rules The validation rules to apply.
+ * @param array $messages The custom error messages for each rule.
+ * @return array An array of error messages.
+ */
+function validateEmail(string $fieldName, $value, array $rules, array $messages): array
+{
+    $errors = [];
+    if (in_array('email', $rules) && !filter_var($value, FILTER_VALIDATE_EMAIL)) {
+        $msg = isset($messages['email']) ? $messages['email'] : 'Invalid email format.';
+        $msg = str_replace(':attribute', $fieldName, $msg);
+        $errors[$fieldName] = $msg;
+    }
+    return $errors;
+}
+
+/**
+ * Validate minimum length.
+ *
+ * @param string $fieldName The name of the field to validate.
+ * @param mixed $value The value of the field to validate.
+ * @param array $rules The validation rules to apply.
+ * @param array $messages The custom error messages for each rule.
+ * @return array An array of error messages.
+ */
+function validateMin(string $fieldName, $value, array $rules, array $messages): array
+{
+    $errors = [];
+    if (preg_match('/min:(\d+)/', implode(':', $rules), $matches)) {
+        $minLength = (int) $matches[1];
+        if (strlen($value) < $minLength) {
+            $msg = isset($messages['min']) ? $messages['min'] : $fieldName . " must have at least $minLength characters.";
+            $msg = str_replace(':attribute', $fieldName, $msg);
+            $msg = str_replace(':min', $minLength, $msg);
+            $errors[$fieldName] = $msg;
+        }
+    }
+    return $errors;
+}
+
+/**
+ * Validate maximum length.
+ *
+ * @param string $fieldName The name of the field to validate.
+ * @param mixed $value The value of the field to validate.
+ * @param array $rules The validation rules to apply.
+ * @param array $messages The custom error messages for each rule.
+ * @return array An array of error messages.
+ */
+function validateMax(string $fieldName, $value, array $rules, array $messages): array
+{
+    $errors = [];
+    if (preg_match('/max:(\d+)/', implode(':', $rules), $matches)) {
+        $maxLength = (int) $matches[1];
+        if (strlen($value) > $maxLength) {
+            $msg = isset($messages['max']) ? $messages['max'] : $fieldName . " must be at most $maxLength characters long.";
+            $msg = str_replace(':attribute', $fieldName, $msg);
+            $msg = str_replace(':max', $maxLength, $msg);
+            $errors[$fieldName] = $msg;
+        }
+    }
+    return $errors;
+}
+
+/**
+ * Validate exact length.
+ *
+ * @param string $fieldName The name of the field to validate.
+ * @param mixed $value The value of the field to validate.
+ * @param array $rules The validation rules to apply.
+ * @param array $messages The custom error messages for each rule.
+ * @return array An array of error messages.
+ */
+function validateExactLength(string $fieldName, $value, array $rules, array $messages): array
+{
+    $errors = [];
+    if (preg_match('/exactLength:(\d+)/', implode(':', $rules), $matches)) {
+        $exactLength = (int) $matches[1];
+        if (strlen($value) == $exactLength) {
+            $msg = isset($messages['exactLength']) ? $messages['exactLength'] : $fieldName . " must be exactly $exactLength characters long.";
+            $msg = str_replace(':attribute', $fieldName, $msg);
+            $msg = str_replace(':exactLength', $exactLength, $msg);
+            $errors[$fieldName] = $msg;
+        }
     }
     return $errors;
 }
