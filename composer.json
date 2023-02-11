@@ -19,5 +19,8 @@
         }
     ],
     "minimum-stability": "stable",
-    "require": {}
+    "require": {},
+    "scripts": {
+        "test": "vendor/bin/phpunit tests --colors=always"
+    }
 }

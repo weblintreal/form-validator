@@ -11,7 +11,7 @@ This is a form validation package for PHP. It supports both OOP and procedural a
 You can install the package via composer:
 
 ``` bash
-composer require weblintreal/form-validation
+composer require weblintreal/form-validator
 ```
 
 ## Usage
