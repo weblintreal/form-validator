@@ -21,7 +21,39 @@ You can use the package in your PHP projects like this:
 #### Procedural or functional approach
 
 ```php
-#Coming Soon
+#include composer autoload file
+require_once __DIR__ . '/../vendor/autoload.php';
+
+#now you need to use the namespace in your file where you want to use these functions
+use Weblintreal\FormValidator\Functions as fv;
+
+#array for holding errors
+$errors = [];
+
+# check if post request of received
+if ($_SERVER["REQUEST_METHOD"] == "POST") {
+    #define rules for each input
+    $rules = [
+        'name' => ['required'],
+        'email' => ['required','email'],
+        'message' => ['required'],
+    ];
+    #define custom error messages for each input
+    $messages = [
+        'required' => ':attribute is required.',
+        'email' => 'Invalid :attribute format.',
+        'min' => ':attribute must have at least :min characters.',
+    ];
+
+    global $errors;
+    #now validate the data
+    $errors = fv\validateForm($_POST, $rules, $messages);
+    if (empty($errors)) {
+        #do database operation or email or anything you want
+    } else {
+      #show errors or whatever you want
+    }
+}
 ```
 
 #### Object Oriented approach
