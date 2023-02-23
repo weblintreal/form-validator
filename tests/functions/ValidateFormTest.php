@@ -43,18 +43,19 @@ class ValidateFormTest extends TestCase
         ];
 
         $rules = [
-            'username' => ['required'],
+            'username' => ['min:4'],
             'email' => ['required'],
             'password' => ['required'],
         ];
 
         $messages = [
-            'required' => ':attribute is required.'
+            'min' => ':attribute must have at least :min characters.',
+            'required' => ':attribute is required.',
         ];
 
         $errors = validateForm($data, $rules, $messages);
 
-        $this->assertEquals(['username' => 'username is required.',
+        $this->assertEquals(['username' => 'username must have at least 4 characters.',
         'email' => 'email is required.',
         'password' => 'password is required.'], $errors);
     }

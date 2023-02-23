@@ -1,6 +1,6 @@
 {
   "name": "form-validator",
-  "version": "0.0.0",
+  "version": "0.0.3",
   "description": "form validation library for php (supports both OOP and Procedural approaches)",
   "main": "index.js",
   "scripts": {

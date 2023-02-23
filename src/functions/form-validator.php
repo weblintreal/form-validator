@@ -28,7 +28,16 @@ function validateForm(array $data, array $rules, array $messages): array
     foreach ($data as $fieldName => $value) {
         $fieldRules = isset($rules[$fieldName]) ? $rules[$fieldName] : [];
         foreach ($fieldRules as $rule) {
-            $ruleErrors = call_user_func("Weblintreal\\FormValidator\\Functions\\validate" . ucfirst($rule), $fieldName, $value, $fieldRules, $messages);
+            // $ruleErrors = call_user_func("Weblintreal\\FormValidator\\Functions\\validate" . ucfirst($rule), $fieldName, $value, $fieldRules, $messages);
+            // $errors = array_merge($errors, $ruleErrors);
+            if (strpos($rule, ':') !== false) {
+                // Rule contains parameter, split into name and parameter parts
+                list($ruleName, $ruleParam) = explode(':', $rule, 2);
+                $ruleErrors = call_user_func("Weblintreal\\FormValidator\\Functions\\validate" . ucfirst($ruleName), $fieldName, $value, [$ruleName => $ruleParam], $messages);
+            } else {
+                // Rule does not contain parameter, call validation function normally
+                $ruleErrors = call_user_func("Weblintreal\\FormValidator\\Functions\\validate" . ucfirst($rule), $fieldName, $value, $fieldRules, $messages);
+            }
             $errors = array_merge($errors, $ruleErrors);
         }
     }
