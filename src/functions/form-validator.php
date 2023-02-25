@@ -14,6 +14,109 @@
 namespace Weblintreal\FormValidator\Functions;
 
 
+
+/**
+ * Sanitize input data to prevent SQL injection, cross-site scripting (XSS), and other attacks.
+ *
+ * @param mixed $input The input data to sanitize.
+ * @param string|null $type The type of data to sanitize.
+ * @return mixed The sanitized input data.
+ */
+function sanitizeInput($input, $type = null)
+{
+    if (is_array($input)) {
+        return array_map(function($data) use ($type) {
+            return sanitizeInput($data, $type);
+        }, $input);
+    }
+
+    if ($type !== null) {
+        switch ($type) {
+            case 'email':
+                $input = filter_var($input, FILTER_SANITIZE_EMAIL);
+                break;
+            case 'url':
+                $input = filter_var($input, FILTER_SANITIZE_URL);
+                break;
+            case 'int':
+                $input = filter_var($input, FILTER_SANITIZE_NUMBER_INT);
+                break;
+            case 'float':
+                $input = filter_var($input, FILTER_SANITIZE_NUMBER_FLOAT, FILTER_FLAG_ALLOW_FRACTION);
+                break;
+            case 'alpha':
+                $input = preg_replace('/[^a-zA-Z]/', '', $input);
+                break;
+            case 'alphanumeric':
+                $input = preg_replace('/[^a-zA-Z0-9]/', '', $input);
+                break;
+            case 'html':
+                $input = filter_var($input, FILTER_SANITIZE_SPECIAL_CHARS);
+                break;
+            case 'string':
+            default:
+                $input = htmlspecialchars($input, ENT_QUOTES, 'UTF-8');
+                break;
+        }
+    }
+
+    // Trim the input
+    $input = trim($input);
+
+    // Remove backslashes (\)
+    $input = stripslashes($input);
+
+    // Convert special characters to HTML entities
+    $input = htmlspecialchars($input, ENT_QUOTES, 'UTF-8');
+
+    // Prevent SQL injection
+    if (is_string($input)) {
+        $input = str_replace(["\\", "\0", "\n", "\r", "'", '"', "\x1a"], '', $input);
+    }
+
+    return $input;
+}
+
+
+
+/**
+ * Sanitize form data based on a set of rules.
+ *
+ * @param array $form_data The form data to sanitize.
+ * @param array $sanitization_rules The sanitization rules for each field in the form data.
+ * @return array The sanitized form data.
+ */
+function sanitizeForm($form_data, $sanitization_rules)
+{
+    $sanitized_form_data = [];
+
+    foreach ($form_data as $field_name => $field_value) {
+        if (isset($sanitization_rules[$field_name])) {
+            $sanitization_rule = $sanitization_rules[$field_name];
+
+            // Check if the field should be skipped
+            if ($sanitization_rule === 'skip') {
+                continue;
+            }
+
+            // Get the type and length of the field
+            $field_type = isset($sanitization_rule['type']) ? $sanitization_rule['type'] : 'string';
+
+            // Sanitize the field value
+            $sanitized_field_value = sanitizeInput($field_value, $field_type);
+
+            // Add the sanitized field value to the sanitized form data
+            $sanitized_form_data[$field_name] = $sanitized_field_value;
+        } else {
+            // If there is no sanitization rule for the field, sanitize the field value as a string
+            $sanitized_form_data[$field_name] = sanitizeInput($field_value);
+        }
+    }
+
+    return $sanitized_form_data;
+}
+
+
 /**
  * Validate the form data.
  * 
