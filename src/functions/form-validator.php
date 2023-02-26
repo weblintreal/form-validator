@@ -6,14 +6,15 @@
 * in a procedural style for ease of use and fast development. The package is licensed under the MIT License.
 *
 * @package Weblintreal\FormValidator
-* @version 1.0.0
+* @version 0.0.4
 * @author Weblintreal
 * @license https://opensource.org/licenses/MIT MIT License
 */
 
 namespace Weblintreal\FormValidator\Functions;
 
-
+use Exception;
+use PhpParser\Node\Expr\Throw_;
 
 /**
  * Sanitize input data to prevent SQL injection, cross-site scripting (XSS), and other attacks.
@@ -78,14 +79,13 @@ function sanitizeInput($input, $type = null)
 }
 
 
-
 /**
  * Sanitize form data based on a set of rules.
- *
+ * 
  * @param array $form_data The form data to sanitize.
  * @param array $sanitization_rules The sanitization rules for each field in the form data.
  * @return array The sanitized form data.
- */
+*/
 function sanitizeForm($form_data, $sanitization_rules)
 {
     $sanitized_form_data = [];
@@ -118,30 +118,39 @@ function sanitizeForm($form_data, $sanitization_rules)
 
 
 /**
- * Validate the form data.
- * 
- * @param array $data The form data to validate.
- * @param array $rules The validation rules to apply to each field.
- * @param array $messages The custom error messages for each rule.
- * @return array An array of error messages.
+ * Validate form data based on the given rules.
+ *
+ * @param array $formData The form data to validate.
+ * @param array $rules The validation rules to apply.
+ * @return array An array of errors for any invalid form fields.
  */
-function validateForm(array $data, array $rules, array $messages): array
+function validateForm($formData, $rules)
 {
     $errors = [];
-    foreach ($data as $fieldName => $value) {
-        $fieldRules = isset($rules[$fieldName]) ? $rules[$fieldName] : [];
-        foreach ($fieldRules as $rule) {
-            // $ruleErrors = call_user_func("Weblintreal\\FormValidator\\Functions\\validate" . ucfirst($rule), $fieldName, $value, $fieldRules, $messages);
-            // $errors = array_merge($errors, $ruleErrors);
+    $param = "";
+    foreach ($rules as $field => $rule) {
+        $errors[$field] = "";
+        $value = $formData[$field] ?? '';
+        $ruleset = is_array($rule) ? $rule : explode('|', $rule);
+        foreach ($ruleset as $rule) {            
             if (strpos($rule, ':') !== false) {
-                // Rule contains parameter, split into name and parameter parts
-                list($ruleName, $ruleParam) = explode(':', $rule, 2);
-                $ruleErrors = call_user_func("Weblintreal\\FormValidator\\Functions\\validate" . ucfirst($ruleName), $fieldName, $value, [$ruleName => $ruleParam], $messages);
+                $params = explode(':', $rule);
+                $param = (int) $params[1];
+                $method = 'validate' . ucfirst(array_shift($params));
             } else {
-                // Rule does not contain parameter, call validation function normally
-                $ruleErrors = call_user_func("Weblintreal\\FormValidator\\Functions\\validate" . ucfirst($rule), $fieldName, $value, $fieldRules, $messages);
+                $method = 'validate' . ucfirst($rule);
             }
-            $errors = array_merge($errors, $ruleErrors);
+
+            if (!function_exists($method)) {
+                $exception = 'Validation method not found: ' . $method;
+                Throw new Exception($exception);
+            }
+
+
+            $temp_error = call_user_func_array($method, [$value, $field, $param]);
+            if($temp_error != 1){
+                $errors[$field] = $errors[$field] . "<br>" . $temp_error;
+            }
         }
     }
     return $errors;
@@ -149,162 +158,113 @@ function validateForm(array $data, array $rules, array $messages): array
 
 
 /**
- * Validate required fields.
- * 
- * @param string $fieldName The name of the field to validate.
- * @param mixed $value The value of the field to validate.
- * @param array $rules The validation rules to apply.
- * @param array $messages The custom error messages for each rule.
- * @return array An array of error messages.
- */
-function validateRequired(string $fieldName, $value, array $rules, array $messages): array
+ * Validates if the given value is not empty or whitespace.
+ * @param string $value The value to be validated.
+ * @param string $field The name of the field being validated.
+ * @param string|null $param Optional additional parameter to be used in validation.
+ * @return bool|string Returns true if the value is not empty or whitespace, otherwise returns an error message.
+*/
+
+function validateRequired($value, $field, $param)
 {
-    $errors = [];
-    if (in_array('required', $rules) && empty($value)) {
-        $msg = isset($messages['required']) ? $messages['required'] : $fieldName . " is required.";
-        $msg = str_replace(':attribute', $fieldName, $msg);
-        $errors[$fieldName] = $msg;
+    if (empty(trim($value))) {
+        return "$field is required.";
     }
-    return $errors;
+    return true;
 }
 
 
 /**
- * Validate email format.
+ * Validate that a given value is a valid email address.
+ * @param string $value The value to validate.
+ * @param string $field The name of the field being validated.
+ * @param mixed $param Unused.
+ * @return true|string True if the validation passes, otherwise an error message string.
+*/
+function validateEmail($value, $field, $param) {
+    if (!filter_var($value, FILTER_VALIDATE_EMAIL)) {
+        return "$field must be a valid email address.";
+    }
+    return true;
+}
+
+
+/**
+
+ * Validate that a given value is at least a certain length.
+ * @param string $value The value to validate.
+ * @param string $field The name of the field being validated.
+ * @param int $minLength The minimum length required.
+ * @return true|string True if the validation passes, otherwise an error message string.
+*/
+function validateMin($value, $field, $minLength) {
+    if (strlen(trim($value)) < $minLength) {
+        return "$field must be at least $minLength characters.";
+    }
+    return true;
+}
+
+
+/**
+ * Validate that a given value is not longer than a certain length.
+ * @param string $value The value to validate.
+ * @param string $field The name of the field being validated.
+ * @param int $maxLength The maximum length allowed.
+ * @return true|string True if the validation passes, otherwise an error message string.
+*/
+function validateMax($value, $field, $maxLength) {
+    if (strlen(trim($value)) > $maxLength) {
+        return "$field must not exceed $maxLength characters.";
+    }
+    return true;
+}
+
+
+/**
+ * Validate that a field has an exact length.
  *
- * @param string $fieldName The name of the field to validate.
- * @param mixed $value The value of the field to validate.
- * @param array $rules The validation rules to apply.
- * @param array $messages The custom error messages for each rule.
- * @return array An array of error messages.
+ * @param string $value The value of the field to validate.
+ * @param string $field The name of the field being validated.
+ * @param int $exactLength The exact length required for the field.
+ * @return mixed True if the validation succeeds, an error message otherwise.
  */
-function validateEmail(string $fieldName, $value, array $rules, array $messages): array
-{
-    $errors = [];
-    if (in_array('email', $rules) && !filter_var($value, FILTER_VALIDATE_EMAIL)) {
-        $msg = isset($messages['email']) ? $messages['email'] : 'Invalid email format.';
-        $msg = str_replace(':attribute', $fieldName, $msg);
-        $errors[$fieldName] = $msg;
+function validateExactLength($value, $field, $exactLength) {
+    if (strlen(trim($value)) !== $exactLength) {
+        return "$field must be exactly $exactLength characters.";
     }
-    return $errors;
+    return true;
 }
 
+
+
 /**
- * Validate minimum length.
+ * Validate that a value is a valid URL.
  *
- * @param string $fieldName The name of the field to validate.
- * @param mixed $value The value of the field to validate.
- * @param array $rules The validation rules to apply.
- * @param array $messages The custom error messages for each rule.
- * @return array An array of error messages.
+ * @param string $value The value to validate.
+ * @param string $field The name of the field being validated.
+ * @param mixed $param Not used for this validation rule.
+ * @return mixed True if the value is a valid URL, or an error message if it is not.
  */
-function validateMin(string $fieldName, $value, array $rules, array $messages): array
+function validateUrl($value, $field, $param)
 {
-    $errors = [];
-    if (preg_match('/min:(\d+)/', implode(':', $rules), $matches)) {
-        $minLength = (int) $matches[1];
-        if (strlen($value) < $minLength) {
-            $msg = isset($messages['min']) ? $messages['min'] : $fieldName . " must have at least $minLength characters.";
-            $msg = str_replace(':attribute', $fieldName, $msg);
-            $msg = str_replace(':min', $minLength, $msg);
-            $errors[$fieldName] = $msg;
-        }
+    if (!filter_var($value, FILTER_VALIDATE_URL)) {
+        return "$field must be a valid URL.";
     }
-    return $errors;
+    return true;
 }
 
+
 /**
- * Validate maximum length.
+ * Validate a field value against a regular expression pattern.
  *
- * @param string $fieldName The name of the field to validate.
- * @param mixed $value The value of the field to validate.
- * @param array $rules The validation rules to apply.
- * @param array $messages The custom error messages for each rule.
- * @return array An array of error messages.
+ * @param string $value The value to validate.
+ * @param string $field The name of the field being validated.
+ * @param string $pattern The regular expression pattern to match against.
+ * @return mixed true if the validation passes, otherwise an error message.
  */
-function validateMax(string $fieldName, $value, array $rules, array $messages): array
-{
-    $errors = [];
-    if (preg_match('/max:(\d+)/', implode(':', $rules), $matches)) {
-        $maxLength = (int) $matches[1];
-        if (strlen($value) > $maxLength) {
-            $msg = isset($messages['max']) ? $messages['max'] : $fieldName . " must be at most $maxLength characters long.";
-            $msg = str_replace(':attribute', $fieldName, $msg);
-            $msg = str_replace(':max', $maxLength, $msg);
-            $errors[$fieldName] = $msg;
-        }
+function validateRegex($value, $field, $pattern) {
+    if (!preg_match($pattern, $value)) {
+        return "$field is invalid.";
     }
-    return $errors;
-}
-
-/**
- * Validate exact length.
- *
- * @param string $fieldName The name of the field to validate.
- * @param mixed $value The value of the field to validate.
- * @param array $rules The validation rules to apply.
- * @param array $messages The custom error messages for each rule.
- * @return array An array of error messages.
- */
-function validateExactLength(string $fieldName, $value, array $rules, array $messages): array
-{
-    $errors = [];
-    if (preg_match('/exactLength:(\d+)/', implode(':', $rules), $matches)) {
-        $exactLength = (int) $matches[1];
-        if (strlen($value) != $exactLength) {
-            $msg = isset($messages['exactLength']) ? $messages['exactLength'] : $fieldName . " must be exactly $exactLength characters long.";
-            $msg = str_replace(':attribute', $fieldName, $msg);
-            $msg = str_replace(':exactLength', $exactLength, $msg);
-            $errors[$fieldName] = $msg;
-        }
-    }
-    return $errors;
-}
-
-
-/**
- * Validate URL.
- * 
- * @param string $fieldName The name of the field to validate.
- * @param mixed $value The value of the field to validate.
- * @param array $rules The validation rules to apply.
- * @param array $messages The custom error messages for each rule.
- * @return array An array of error messages.
- */
-function validateUrl(string $fieldName, $value, array $rules, array $messages): array
-{
-    $errors = [];
-
-    if (in_array('url', $rules) && !filter_var($value, FILTER_VALIDATE_URL)) {
-        $msg = isset($messages['url']) ? $messages['url'] : $fieldName . " must be a valid URL.";
-        $msg = str_replace(':attribute', $fieldName, $msg);
-        $errors[$fieldName] = $msg;
-    }
-
-    return $errors;
-}
-
-
-/**
- * Validate regular expression pattern for a field.
- *
- * @param string $fieldName The name of the field to validate.
- * @param mixed $value The value of the field to validate.
- * @param array $rules The validation rules to apply.
- * @param array $messages The custom error messages for each rule.
- * @return array An array of error messages.
- */
-function validateRegex(string $fieldName, $value, array $rules, array $messages): array
-{
-    $errors = [];
-    if (preg_match('/regex:\/(.*)\//', implode(':', $rules), $matches)) {
-        $regex = $matches[1];
-        if (!preg_match($regex, $value)) {
-            $msg = isset($messages['regex']) ? $messages['regex'] : $fieldName . " format is invalid.";
-            $msg = str_replace(':attribute', $fieldName, $msg);
-            $msg = str_replace(':regex', $regex, $msg);
-            $errors[$fieldName] = $msg;
-        }
-    }
-    return $errors;
+    return true;
 }
