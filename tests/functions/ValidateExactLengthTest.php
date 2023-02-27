@@ -1,9 +1,10 @@
 <?php
 /**
-* Test suite for functions in functions.php.
+* Test suite for functions in functions/form-validator.php.
 *
 * @group functions
 */
+
 require_once __DIR__ . '/../../vendor/autoload.php';
 
 use PHPUnit\Framework\TestCase;
@@ -11,18 +12,27 @@ use function Weblintreal\FormValidator\Functions\validateExactLength;
 
 class ValidateExactLengthTest extends TestCase
 {
-    public function testValidateExactLength()
+    public function testExactLengthValid()
     {
-        $fieldName = 'Test Field';
-        $value = 'abcde';
-        $rules = ['exactLength:4'];
-        $messages = [
-            'exactLength' => ':attribute must be exactly :exactLength characters long.',
-        ];
+        $result = validateExactLength('123456', 'Test Field', 6);
+        $this->assertTrue($result);
+    }
 
-        $errors = validateExactLength($fieldName, $value, $rules, $messages);
+    public function testExactLengthInvalid()
+    {
+        $result = validateExactLength('12345', 'Test Field', 6);
+        $this->assertEquals('Test Field must be exactly 6 characters.', $result);
+    }
 
-        $this->assertEquals(['Test Field' => 'Test Field must be exactly 4 characters long.'], $errors);
+    public function testExactLengthWithWhitespace()
+    {
+        $result = validateExactLength('  123456  ', 'Test Field', 6);
+        $this->assertTrue($result);
+    }
+
+    public function testExactLengthWithSpecialCharacters()
+    {
+        $result = validateExactLength('@#&123', 'Test Field', 6);
+        $this->assertEquals('Test Field must be exactly 6 characters.', $result);
     }
 }
-

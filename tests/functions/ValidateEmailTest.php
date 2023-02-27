@@ -1,9 +1,10 @@
 <?php
 /**
-* Test suite for functions in functions.php.
+* Test suite for functions in functions/form-validator.php.
 *
 * @group functions
 */
+
 require_once __DIR__ . '/../../vendor/autoload.php';
 
 use PHPUnit\Framework\TestCase;
@@ -11,17 +12,25 @@ use function Weblintreal\FormValidator\Functions\validateEmail;
 
 class ValidateEmailTest extends TestCase
 {
-    public function testValidateEmail()
+    public function testValidEmail()
     {
-        $fieldName = 'Test Field';
-        $value = 'invalid-email';
-        $rules = ['email'];
-        $messages = [
-            'email' => 'Invalid :attribute format.',
-        ];
+        $value = 'test@example.com';
+        $field = 'Email';
+        $param = null;
 
-        $errors = validateEmail($fieldName, $value, $rules, $messages);
+        $result = validateEmail($value, $field, $param);
 
-        $this->assertEquals(['Test Field' => 'Invalid Test Field format.'], $errors);
+        $this->assertTrue($result);
+    }
+
+    public function testInvalidEmail()
+    {
+        $value = 'notanemail';
+        $field = 'Email';
+        $param = null;
+
+        $result = validateEmail($value, $field, $param);
+
+        $this->assertEquals('Email must be a valid email address.', $result);
     }
 }

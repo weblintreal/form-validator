@@ -1,9 +1,10 @@
 <?php
 /**
-* Test suite for functions in functions.php.
+* Test suite for functions in functions/form-validator.php.
 *
 * @group functions
 */
+
 require_once __DIR__ . '/../../vendor/autoload.php';
 
 use PHPUnit\Framework\TestCase;
@@ -11,18 +12,27 @@ use function Weblintreal\FormValidator\Functions\validateRequired;
 
 class ValidateRequiredTest extends TestCase
 {
-    public function testValidateRequired()
+    public function testEmptyStringReturnsErrorMessage()
     {
-        $fieldName = 'Test Field';
-        $value = '';
-        $rules = ['required'];
-        $messages = [
-            'required' => ':attribute is required.',
-        ];
+        $result = validateRequired('', 'Name', '');
+        $this->assertEquals('Name is required.', $result);
+    }
 
-        $errors = validateRequired($fieldName, $value, $rules, $messages);
+    public function testNullValueReturnsErrorMessage()
+    {
+        $result = validateRequired(null, 'Email', '');
+        $this->assertEquals('Email is required.', $result);
+    }
 
-        $this->assertEquals(['Test Field' => 'Test Field is required.'], $errors);
+    public function testWhitespaceReturnsErrorMessage()
+    {
+        $result = validateRequired('   ', 'Phone', '');
+        $this->assertEquals('Phone is required.', $result);
+    }
+
+    public function testValidInputReturnsTrue()
+    {
+        $result = validateRequired('John Doe', 'Name','');
+        $this->assertTrue($result);
     }
 }
-
